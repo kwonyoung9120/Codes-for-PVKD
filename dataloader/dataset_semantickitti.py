@@ -381,6 +381,8 @@ class polar_dataset(data.Dataset):
         processed_label = nb_process_label(np.copy(processed_label), label_voxel_pair)
         data_tuple = (voxel_position, processed_label)
 
+        print(labels.unique)
+
         # center data on each voxel for PTnet
         voxel_centers = (grid_ind.astype(np.float32) + 0.5) * intervals + min_bound
         return_xyz = xyz_pol - voxel_centers

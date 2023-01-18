@@ -63,7 +63,12 @@ class SemKITTI_demo(data.Dataset):
 @register_dataset
 class SemKITTI_sk(data.Dataset):
     def __init__(self, data_path, imageset='train',
-                 return_ref=False, label_mapping="semantic-kitti.yaml", nusc=None):
+                 return_ref=False, dataset="SemanticKITTI", nusc=None):
+        self.dataset = dataset
+        if "nuscenes.yaml" in label_mapping:
+            self.nusc = True
+        else : 
+            self.nusc = False
         self.return_ref = return_ref
         with open(label_mapping, 'r') as stream:
             semkittiyaml = yaml.safe_load(stream)
@@ -81,24 +86,44 @@ class SemKITTI_sk(data.Dataset):
         self.im_idx = []
         for i_folder in split:
             self.im_idx += absoluteFilePaths('/'.join([data_path, str(i_folder).zfill(2), 'velodyne']))
-
+        
     def __len__(self):
         'Denotes the total number of samples'
         return len(self.im_idx)
 
     def __getitem__(self, index):
         raw_data = np.fromfile(self.im_idx[index], dtype=np.float32).reshape((-1, 4))
+        if self.dataset == "nuScene-lidarseg":
+            rot_align = -np.pi/2
+        elif self.dataset == "Pandaset":
+            rot_align = -np.pi/4
+        
+        else: 
+            rot_align = 0
+        
+        rot_mat = [[np.cos(rot_align), np.sin(rot_align), 0.],
+                    [-np.sin(rot_align), np.cos(rot_align), 0.],
+                    [0.,0., 1.]]
+        raw_data[:,:3] =  raw_data[:,:3] @ rot_mat
+        
         if self.imageset == 'test':
             annotated_data = np.expand_dims(np.zeros_like(raw_data[:, 0], dtype=int), axis=1)
         else:
-            annotated_data = np.fromfile(self.im_idx[index].replace('velodyne', 'labels')[:-3] + 'label',
-                                         dtype=np.uint32).reshape((-1, 1))
+            if self.dataset == "nuScene-lidarseg":
+                annotated_data = np.fromfile(self.im_idx[index].replace('velodyne', 'labels')[:-3] + 'label',
+                                             dtype=np.uint8).reshape((-1, 1))
+            else :
+                annotated_data = np.fromfile(self.im_idx[index].replace('velodyne', 'labels')[:-3] + 'label',
+                                             dtype=np.uint32).reshape((-1, 1))
+            
             annotated_data = annotated_data & 0xFFFF  # delete high 16 digits binary
             annotated_data = np.vectorize(self.learning_map.__getitem__)(annotated_data)
 
+        
         data_tuple = (raw_data[:, :3], annotated_data.astype(np.uint8))
         if self.return_ref:
             data_tuple += (raw_data[:, 3],)
+        
         return data_tuple
 
 

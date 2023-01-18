@@ -14,12 +14,14 @@ def build(dataset_config,
           use_tta=False,
           use_multiscan=False,
           use_waymo=False):
+    dataset = train_dataloader_config
     data_path = train_dataloader_config["data_path"]
     train_imageset = train_dataloader_config["imageset"]
     val_imageset = val_dataloader_config["imageset"]
     train_ref = train_dataloader_config["return_ref"]
     val_ref = val_dataloader_config["return_ref"]
-
+    
+    
     label_mapping = dataset_config["label_mapping"]
 
     SemKITTI = get_pc_model_class(dataset_config['pc_dataset_type'])

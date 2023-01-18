@@ -21,26 +21,16 @@ from utils.load_save_util import load_checkpoint
 
 import warnings
 
-import wandb
-
 warnings.filterwarnings("ignore")
 
 
 def main(args):
-    
-    
     pytorch_device = torch.device('cuda:0')
 
     config_path = args.config_path
 
     configs = load_config_data(config_path)
 
-    wandb.init(project="UniLiDAR", notes="Unified LiDAR segmentation")
-    wandb.run.name = args.experiment
-    wandb.run.save()
-    
-    wandb.config.update(configs)
-    
     dataset_config = configs['dataset_params']
     train_dataloader_config = configs['train_data_loader']
     val_dataloader_config = configs['val_data_loader']
@@ -53,6 +43,7 @@ def main(args):
 
     grid_size = model_config['output_shape']
     num_class = model_config['num_class']
+    print(num_class)
     ignore_label = dataset_config['ignore_label']
 
     model_load_path = train_hypers['model_load_path']
@@ -67,7 +58,6 @@ def main(args):
         my_model = load_checkpoint(model_load_path, my_model)
 
     my_model.to(pytorch_device)
-    wandb.watch(my_model)
     optimizer = optim.Adam(my_model.parameters(), lr=train_hypers["learning_rate"])
 
     loss_func, lovasz_softmax = loss_builder.build(wce=True, lovasz=True,
@@ -99,7 +89,8 @@ def main(args):
                     for i_iter_val, (_, val_vox_label, val_grid, val_pt_labs, val_pt_fea) in enumerate(
                             val_dataset_loader):
 
-                        val_pt_fea_ten = [torch.from_numpy(i).type(torch.FloatTensor).to(pytorch_device) for i in val_pt_fea]
+                        val_pt_fea_ten = [torch.from_numpy(i).type(torch.FloatTensor).to(pytorch_device) for i in
+                                          val_pt_fea]
                         val_grid_ten = [torch.from_numpy(i).to(pytorch_device) for i in val_grid]
                         val_label_tensor = val_vox_label.type(torch.LongTensor).to(pytorch_device)
 
@@ -115,9 +106,6 @@ def main(args):
                                                                 val_grid[count][:, 2]], val_pt_labs[count],
                                                             unique_label))
                         val_loss_list.append(loss.detach().cpu().numpy())
-                        wandb.log({
-                            'Test total loss' : loss,              
-                        })
                 my_model.train()
                 iou = per_class_iu(sum(hist_list))
                 print('Validation per class iou: ')
@@ -143,9 +131,9 @@ def main(args):
 
             # forward + backward + optimize
             outputs = my_model(train_pt_fea_ten, train_vox_ten, point_label_tensor.shape[0] )#train_batch_size)
-            lovasz_loss = lovasz_softmax(torch.nn.functional.softmax(outputs), point_label_tensor, ignore=0)
-            ce_loss = loss_func(outputs, point_label_tensor)
-            loss = lovasz_loss + ce_loss
+            loss = lovasz_softmax(torch.nn.functional.softmax(outputs), point_label_tensor, ignore=0)
+            loss += loss_func(torch.nn.functional.softmax(outputs), point_label_tensor)
+
             loss.backward()
             optimizer.step()
             loss_list.append(loss.item())
@@ -166,11 +154,6 @@ def main(args):
                           (epoch, i_iter, np.mean(loss_list)))
                 else:
                     print('loss error')
-            wandb.log({
-                'Train total loss' : loss,
-                'Train lovasz loss' : lovasz_loss,
-                'Train CE loss' : ce_loss                
-            })
         pbar.close()
         epoch += 1
 
@@ -178,8 +161,7 @@ def main(args):
 if __name__ == '__main__':
     # Training settings
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('-e', '--experiment', default='experiment')
-    parser.add_argument('-y', '--config_path', default='config/semantickitti.yaml')
+    parser.add_argument('-y', '--config_path', default='config/synlidar.yaml')
     args = parser.parse_args()
 
     print(' '.join(sys.argv))
