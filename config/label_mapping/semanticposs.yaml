@@ -16,3 +16,38 @@ learning_map:
   17: 17
   21: 3
   22: 58
+
+labels:
+  0: unlabeled
+  1: unlabeled
+  2: unlabeled
+  3: unlabeled
+  4: people1
+  5: people2
+  6: rider
+  7: car
+  8: trunk
+  9: plants
+  10: traffic-sign1
+  11: traffic-sign2
+  12: traffic-sign3
+  13: pole
+  14: trashcan
+  15: building
+  16: cone/stone
+  17: fence
+  18: unlabeled
+  19: unlabeled
+  20: unlabeled
+  21: bike
+  22: ground
+
+split: # sequence numbers
+  train:
+    - 00
+    - 01
+    - 02
+    - 04
+    - 05
+  valid:
+    - 03

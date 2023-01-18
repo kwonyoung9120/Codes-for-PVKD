@@ -13,7 +13,7 @@ model_params:
 
   fea_dim: 9
   out_fea_dim: 128 #256
-  num_class: 17
+  num_class: 83
   num_input_features: 16
   use_norm: True
   init_size: 16 #32
@@ -22,8 +22,8 @@ model_params:
 ###################
 ## Dataset options
 dataset_params:
-  dataset_type: "cylinder_dataset_nuscenes"
-  pc_dataset_type: "SemKITTI_nusc"
+  dataset_type: "cylinder_dataset"
+  pc_dataset_type: "SemKITTI_sk"
   ignore_label: 0
   return_test: False
   fixed_volume_space: True
@@ -41,20 +41,20 @@ dataset_params:
 ###################
 ## Data_loader options
 train_data_loader:
-  data_path: "/mnt/lustre/share_data/houyuenan/"
-  imageset: "/mnt/lustre/share_data/houyuenan/nuscenes_infos_train.pkl"
+  data_path: "/dataset/nuscenes_kitti_real/"
+  imageset: "train"
   return_ref: True
-  batch_size: 6 #2
+  batch_size: 1 #2
   shuffle: True
-  num_workers: 96 #4
+  num_workers: 12 #4
 
 val_data_loader:
-  data_path: "/mnt/lustre/share_data/houyuenan/"
-  imageset: "/mnt/lustre/share_data/houyuenan/nuscenes_infos_val.pkl"
+  data_path: "/dataset/nuscenes_kitti_real/"
+  imageset: "val"
   return_ref: True
-  batch_size: 3 #1
+  batch_size: 1 #1
   shuffle: False
-  num_workers: 96 #4
+  num_workers: 12 #4
 
 
 ###################
@@ -65,4 +65,4 @@ train_params:
   checkpoint_every_n_steps: 4599
   max_num_epochs: 40
   eval_every_n_steps: 4599
-  learning_rate: 0.003 #1
+  learning_rate: 0.002 #1

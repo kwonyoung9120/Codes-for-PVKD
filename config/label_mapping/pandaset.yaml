@@ -1,3 +1,50 @@
+labels:
+  0: Noise
+  1: Smoke
+  2: Exhaust
+  3: Spray or Rain
+  4: Reflection
+  5: Vegetation
+  6: Ground
+  7: Road
+  8: Lane Line Marking
+  9: Stop Line Marking
+  10: Other Road Marking
+  11: Sidewalk
+  12: Driveway
+  13: Car
+  14: Pickup Truck
+  15: Medium-sized Truck
+  16: Semi-truck
+  17: Towed Object
+  18: Motorcycle
+  19: Other Vehicle - Constr. Vehicle
+  20: Other Vehicle - Uncommon
+  21: Other Vehicle - Pedicab
+  22: Emergency Vehicle
+  23: Bus
+  24: Personal Mobility Device
+  25: Motorized Scooter
+  26: Bicycle
+  27: Train
+  28: Trolley
+  29: Tram / Subway 
+  30: Pedestrian
+  31: Pedestrian with Object
+  32: Animals - Bird
+  33: Animals - Other
+  34: Pylons
+  35: Road Barriers
+  36: Signs
+  37: Cones 
+  38: Construction Signs
+  39: Temporary Construction Barriers
+  40: Rolling Containers 
+  41: Building mapped
+  42: Other Static Object
+
+ignore_label: 0 
+
 learning_map:
   0: 45
   1: 54
@@ -42,3 +89,11 @@ learning_map:
   40: 82
   41: 16
   42: 83
+
+split: # sequence numbers
+  train: ['001', '002', '011', '013', '015', '016', '017', '024', '027', '028', '029', '030', '032', '033', '034', '035', '037', '038', '039', '041', '042', '043', '052', '053', 
+     '046', '056', '057', '058', '064', '065', '066', '070','071', '072', '077', '080', '084', '089', '090', '094', '095', '098', '101', '103', '105', '106', '109', '113', '115', 
+     '116', '117', '119', '120', '123', '139', '149'] 
+  valid: ['005', '021', '040', '067', '078', '110', '124']
+  test: ['003', '019', '023', '039', '044', '054', '069', '073', 
+     '088', '097', '102', '112', '122', '158']
